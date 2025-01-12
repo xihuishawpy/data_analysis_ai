@@ -26,8 +26,6 @@
 2.根据业务描述，对业务分析进行指导，生成对应数据分析思路；
 
 完全用python实现，前端用streamlit实现，大模型使用zhipu ai的api,使用glm-4-plus 
-zhipuai 的api 文档：https://www.zhipu.ai/docs/api/
-api:c9ff9702a269ff2fec2bfda8a41fd107.1PegRyefcEVeRRv3
 
 
 
