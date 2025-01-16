@@ -5,13 +5,17 @@ from typing import Optional, List, Dict
 from PIL import Image
 import io
 import base64
+import os
+from dotenv import load_dotenv
 
-# 配置ZhipuAI API
-client = ZhipuAI(api_key="")
+load_dotenv()
+client = ZhipuAI(api_key=os.getenv("ZHIPUAI_API_KEY"))
 
+
+@st.cache_data
 def extract_headers_from_image(image_bytes: bytes) -> List[str]:
     """
-    使用智谱AI的视觉模型从图片中提取表头
+    使用智谱AI的视觉模型从图片中提取表头，添加缓存以提高性能
     """
     try:
         # 将图片转换为base64编码
@@ -45,6 +49,7 @@ def extract_headers_from_image(image_bytes: bytes) -> List[str]:
     except Exception as e:
         raise Exception(f"图片识别失败：{str(e)}")
 
+@st.cache_data(ttl=1800)  # 缓存0.5小时
 def get_ai_analysis(headers: Optional[List[str]] = None, business_desc: Optional[str] = None, 
                     temperature: float = 0.7, top_p: float = 0.7, max_tokens: int = 2000) -> str:
     """
@@ -57,13 +62,17 @@ def get_ai_analysis(headers: Optional[List[str]] = None, business_desc: Optional
         max_tokens: 最大生成token数
     """
     # 构建系统提示词
-    system_prompt = """你是第三方检测公司的专业的数据分析专家，仅基于用户提供的信息给出详细的分析建议。
+    system_prompt = """你是第三方检测公司的专业的数据分析专家，仅基于用户提供的表头信息和业务描述给出详细的分析建议。
     分析建议应该包含以下方面：
-    1. 建议的数据分析维度
-    2. 建议的分析指标
+    1. 定义分析目标
+    2. 建议的数据分析维度及指标
     3. 根据建议的维度和指标，分主题给出详细的数据分析思路
     4. 对每个主题具体的维度、指标进行指导
     5. 如果可以，进一步对主题进行详细的交叉分析
+
+    注意：
+    1. 分析建议需基于用户提供的数据表头和业务描述，给出详细的分析思路和方案。
+    2. 不回答任何与数据分析无关的问题。
     """
     
     # 构建用户提示词
@@ -96,7 +105,7 @@ def get_ai_analysis(headers: Optional[List[str]] = None, business_desc: Optional
     return response.choices[0].message.content
 
 def main():
-    st.title("业务数据分析助手")
+    st.title("业务数据分析-AI助手")
     
     # 添加应用介绍
     with st.expander("📖 关于本应用", expanded=False):
