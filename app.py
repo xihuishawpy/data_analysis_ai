@@ -49,7 +49,7 @@ def extract_headers_from_image(image_bytes: bytes) -> List[str]:
     except Exception as e:
         raise Exception(f"图片识别失败：{str(e)}")
 
-@st.cache_data(ttl=1800)  # 缓存0.5小时
+# @st.cache_data(ttl=1800)  # 缓存0.5小时
 def get_ai_analysis(headers: Optional[List[str]] = None, business_desc: Optional[str] = None, 
                     temperature: float = 0.7, top_p: float = 0.7, max_tokens: int = 2000) -> str:
     """
@@ -227,8 +227,8 @@ def main():
         return
     
     # 生成分析按钮
-    if st.button("生成分析建议"):
-        with st.spinner("正在分析中..."):
+    if st.button("生成分析建议", type="primary"):
+        with st.spinner("AI正在分析中..."):
             try:
                 analysis = get_ai_analysis(
                     headers, 
